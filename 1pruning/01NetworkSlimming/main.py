@@ -31,7 +31,7 @@ parser.add_argument('--batch-size', type=int, default=100, metavar='N',
                     help='input batch size for training (default: 100)')
 parser.add_argument('--test-batch-size', type=int, default=1000, metavar='N',
                     help='input batch size for testing (default: 1000)')
-parser.add_argument('--epochs', type=int, default=160, metavar='N',
+parser.add_argument('--epochs', type=int, default=5, metavar='N',
                     help='number of epochs to train (default: 160)')
 parser.add_argument('--start-epoch', default=0, type=int, metavar='N',
                     help='manual epoch number (useful on restarts)')
@@ -106,7 +106,9 @@ if args.resume:
 def updateBN():
     for m in model.modules():
         if isinstance(m, nn.BatchNorm2d):
-            m.weight.grad.data.add_(args.s*torch.sign(m.weight.data))  # L1
+            # 更新BN梯度grid，因为L1正则求导结果是sign（为什么用sign）（Docs:https://www.yuque.com/huangzhongqing/pytorch/eqto0x#v5JLV）
+            # m.weight.data.fill_(0.5) # BN层w初始化参数
+            m.weight.grad.data.add_(args.s*torch.sign(m.weight.data))  # --s 0.0001  sign：L1 大于0为1 小于0为-1 0还是0
 
 
 def train(epoch):
@@ -121,7 +123,7 @@ def train(epoch):
         loss = F.cross_entropy(output, target)
         loss.backward()
         if args.sr:
-            updateBN()
+            updateBN() # 》》》》》》》》》》》》更新BN
         optimizer.step()
         if batch_idx % args.log_interval == 0:
             print('Train Epoch: {} [{}/{} ({:.1f}%)]\tLoss: {:.6f}'.format(
@@ -137,7 +139,7 @@ def test():
             data, target = data.cuda(), target.cuda()
         data, target = Variable(data, volatile=True), Variable(target)
         output = model(data)
-        test_loss += F.cross_entropy(output, target, size_average=False).data[0] # sum up batch loss
+        test_loss += F.cross_entropy(output, target, size_average=False).item()  # fix data[0] # sum up batch loss
         pred = output.data.max(1, keepdim=True)[1] # get the index of the max log-probability
         correct += pred.eq(target.data.view_as(pred)).cpu().sum()
 

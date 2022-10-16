@@ -1,4 +1,6 @@
 1pruning/01NetworkSlimming/data
+# 权重文件
+*.tar
 
 
 

@@ -11,6 +11,12 @@ from torch.autograd import Variable
 from vgg import vgg
 import shutil
 
+#1:训练，并且加入L1正则化 -sr -ss 0.001
+#2:执行剪枝操作  -model model_best.pth.tar --save pruned.pth.tar --percent 0.7
+#3:再次进行微调操作  -refine pruned.pth.tar--epochs 40
+
+
+
 # Training settings
 parser = argparse.ArgumentParser(description='PyTorch Slimming CIFAR training')
 parser.add_argument('--dataset', type=str, default='cifar10',
@@ -50,7 +56,7 @@ torch.manual_seed(args.seed)
 if args.cuda:
     torch.cuda.manual_seed(args.seed)
 
-
+# 1 数据加载
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 train_loader = torch.utils.data.DataLoader(
     datasets.CIFAR10('./data', train=True, download=True,
@@ -69,6 +75,7 @@ test_loader = torch.utils.data.DataLoader(
                    ])),
     batch_size=args.test_batch_size, shuffle=True, **kwargs)
 
+# 模型
 if args.refine:
     checkpoint = torch.load(args.refine)
     model = vgg(cfg=checkpoint['cfg'])
@@ -79,6 +86,7 @@ else:
 if args.cuda:
     model.cuda()
 
+# 3 优化器
 optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
 
 if args.resume:
@@ -107,6 +115,7 @@ def train(epoch):
         if args.cuda:
             data, target = data.cuda(), target.cuda()
         data, target = Variable(data), Variable(target)
+        #
         optimizer.zero_grad()
         output = model(data)
         loss = F.cross_entropy(output, target)
@@ -117,7 +126,7 @@ def train(epoch):
         if batch_idx % args.log_interval == 0:
             print('Train Epoch: {} [{}/{} ({:.1f}%)]\tLoss: {:.6f}'.format(
                 epoch, batch_idx * len(data), len(train_loader.dataset),
-                100. * batch_idx / len(train_loader), loss.data[0]))
+                100. * batch_idx / len(train_loader), loss.item())) # 修改loss.data[0]为loss.item() # fix: IndexError: invalid index of a 0-dim tensor. Use `tensor.item()`
 
 def test():
     model.eval()

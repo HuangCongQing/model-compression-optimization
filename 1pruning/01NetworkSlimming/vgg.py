@@ -3,7 +3,10 @@ import torch.nn as nn
 from torch.autograd import Variable
 import math  # init
 
-
+# 总层数：48+4+1=53
+# ●  num(16)*[Conv,BN,ReLU](3)=48
+# ● 'M'(4)*[Maxpool](1)=4
+# ● nn.Linear*1=1
 class vgg(nn.Module):
 
     def __init__(self, dataset='cifar10', init_weights=True, cfg=None):
@@ -11,6 +14,7 @@ class vgg(nn.Module):
         # 配置参数
         if cfg is None:
             cfg = [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 256, 'M', 512, 512, 512, 512, 'M', 512, 512, 512, 512]
+        # num(16)*[Conv,BN,ReLU](3)=48 'M'(4)*[Maxpool](1)=4 nn.Linear*1=1
         self.feature = self.make_layers(cfg, True)
 
         if dataset == 'cifar100':

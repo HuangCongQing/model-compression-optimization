@@ -16,8 +16,7 @@ parser.add_argument('--test-batch-size', type=int, default=1000, metavar='N',
                     help='input batch size for testing (default: 1000)')
 parser.add_argument('--no-cuda', action='store_true', default=False,
                     help='disables CUDA training')
-# 剪枝percent
-parser.add_argument('--percent', type=float, default=0.5,
+parser.add_argument('--percent', type=float, default=0.5, # 剪枝percent
                     help='scale sparse rate (default: 0.5)')
 parser.add_argument('--model', default='', type=str, metavar='PATH',
                     help='path to raw trained model (default: none)')
@@ -42,46 +41,46 @@ if args.model:
         print("=> no checkpoint found at '{}'".format(args.resume))
 
 print(model)
-total = 0
+total = 0 # 每层特征图个数总和
 for m in model.modules():
     if isinstance(m, nn.BatchNorm2d):
-        total += m.weight.data.shape[0]
+        total += m.weight.data.shape[0]  # 当前层BN的w权重shape
 
-bn = torch.zeros(total)
+bn = torch.zeros(total) # 拿到每个gamma值，每层特征图(channel)都会对应一个gama， belta
 index = 0
 for m in model.modules():
     if isinstance(m, nn.BatchNorm2d):
         size = m.weight.data.shape[0]
-        bn[index:(index+size)] = m.weight.data.abs().clone()
+        bn[index:(index+size)] = m.weight.data.abs().clone() # 将每一层的每个权重绝对值保存下来
         index += size
 
-y, i = torch.sort(bn)
-thre_index = int(total * args.percent)
-thre = y[thre_index]
+y, i = torch.sort(bn) #从小到大排序
+thre_index = int(total * args.percent) # 总量的70%
+thre = y[thre_index] # 选择70%百分比位置的参数的卡点阈值0.2529
 
 pruned = 0
-cfg = []
+cfg = [] # 修改生成新的网络配置参数(小于thre置为0)===============================
 cfg_mask = []
 for k, m in enumerate(model.modules()):
     if isinstance(m, nn.BatchNorm2d):
-        weight_copy = m.weight.data.clone()
-        mask = weight_copy.abs().gt(thre).float().cuda()
-        pruned = pruned + mask.shape[0] - torch.sum(mask)
-        m.weight.data.mul_(mask)
-        m.bias.data.mul_(mask)
-        cfg.append(int(torch.sum(mask)))
-        cfg_mask.append(mask.clone())
+        weight_copy = m.weight.data.clone() # 即需要开辟新的存储地址而不是引用，可以用 clone() 进行深拷贝
+        mask = weight_copy.abs().gt(thre).float().cuda() # 阈值判断得到0/1列表  gt：当前参数是不是大于阈值thre
+        pruned = pruned + mask.shape[0] - torch.sum(mask) # 单纯输出计数，剪枝了多少
+        m.weight.data.mul_(mask) # BN层gamma置0 ，但是没有删除=====
+        m.bias.data.mul_(mask) #  偏置置0
+        cfg.append(int(torch.sum(mask))) # 修改配置参数
+        cfg_mask.append(mask.clone()) # 每一层满足阈值的0/1 list的list（嵌套list）
         print('layer index: {:d} \t total channel: {:d} \t remaining channel: {:d}'.
             format(k, mask.shape[0], int(torch.sum(mask))))
     elif isinstance(m, nn.MaxPool2d):
         cfg.append('M')
 
-pruned_ratio = pruned/total
+pruned_ratio = pruned/total # 0.7
 
 print('Pre-processing Successful!')
 
 
-# simple test model after Pre-processing prune (simple set BN scales to zeros)
+# 部分置0后先测试下效果 simple test model after Pre-processing prune (simple set BN scales to zeros)
 def test():
     kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
     test_loader = torch.utils.data.DataLoader(
@@ -95,7 +94,7 @@ def test():
         if args.cuda:
             data, target = data.cuda(), target.cuda()
         data, target = Variable(data, volatile=True), Variable(target)
-        output = model(data)
+        output = model(data) # 调用修改后的模型
         pred = output.data.max(1, keepdim=True)[1] # get the index of the max log-probability
         correct += pred.eq(target.data.view_as(pred)).cpu().sum()
 
@@ -103,42 +102,47 @@ def test():
         correct, len(test_loader.dataset), 100. * correct / len(test_loader.dataset)))
     return correct / float(len(test_loader.dataset))
 
-test()
+test() # Test set: Accuracy: 1000/10000 (10.0%) 精度只有10%，还需要【再训练】
 
 
-# Make real prune
+# 执行剪枝 Make real prune
 print(cfg)
-newmodel = vgg(cfg=cfg)
+newmodel = vgg(cfg=cfg) # 剪枝后的模型（cfg新的参数）================================
 newmodel.cuda()
 
+# 为剪枝后的newmodel模型【赋值权重】！！！
 layer_id_in_cfg = 0
-start_mask = torch.ones(3)
-end_mask = cfg_mask[layer_id_in_cfg]
-for [m0, m1] in zip(model.modules(), newmodel.modules()):
+start_mask = torch.ones(3) # 初始输入channel(1,1,1)
+end_mask = cfg_mask[layer_id_in_cfg] # 输出channel    cfg_mask：每一层满足阈值的0/1 list的list（嵌套list）
+# num(16)*[Conv,BN,ReLU](3)=48    'M'(4)*[Maxpool](1)=4 nn.Linear*1=1
+for [m0, m1] in zip(model.modules(), newmodel.modules()): # Conv,BN,ReLU final:ReLU
     if isinstance(m0, nn.BatchNorm2d):
-        idx1 = np.squeeze(np.argwhere(np.asarray(end_mask.cpu().numpy())))
-        m1.weight.data = m0.weight.data[idx1].clone()
+        idx1 = np.squeeze(np.argwhere(np.asarray(end_mask.cpu().numpy()))) # 得到满足条件的下标列表  np.argwhere:返回条件非0的数组元组的索引
+        m1.weight.data = m0.weight.data[idx1].clone() # 只赋值有1的下标
         m1.bias.data = m0.bias.data[idx1].clone()
         m1.running_mean = m0.running_mean[idx1].clone()
         m1.running_var = m0.running_var[idx1].clone()
+        # 修改为下一层的输入输出channel
         layer_id_in_cfg += 1
         start_mask = end_mask.clone()
         if layer_id_in_cfg < len(cfg_mask):  # do not change in Final FC
             end_mask = cfg_mask[layer_id_in_cfg]
+
     elif isinstance(m0, nn.Conv2d):
-        idx0 = np.squeeze(np.argwhere(np.asarray(start_mask.cpu().numpy())))
+        # 权重w的shape（c_in,c_out,w,h ）
+        idx0 = np.squeeze(np.argwhere(np.asarray(start_mask.cpu().numpy()))) # 
         idx1 = np.squeeze(np.argwhere(np.asarray(end_mask.cpu().numpy())))
-        print('In shape: {:d} Out shape:{:d}'.format(idx0.shape[0], idx1.shape[0]))
-        w = m0.weight.data[:, idx0, :, :].clone()
-        w = w[idx1, :, :, :].clone()
+        print('In shape: {:d} Out shape:{:d}'.format(idx0.shape[0], idx1.shape[0])) # In shape: 48 Out shape:64
+        w = m0.weight.data[:, idx0, :, :].clone() # oldmodel Conv2d (BCHW)
+        w = w[idx1, :, :, :].clone() # ?????将所需权重赋值到剪枝后的模型
         m1.weight.data = w.clone()
         # m1.bias.data = m0.bias.data[idx1].clone()
-    elif isinstance(m0, nn.Linear):
+    elif isinstance(m0, nn.Linear): # 最后1层 10分类
         idx0 = np.squeeze(np.argwhere(np.asarray(start_mask.cpu().numpy())))
         m1.weight.data = m0.weight.data[:, idx0].clone()
 
-
-torch.save({'cfg': cfg, 'state_dict': newmodel.state_dict()}, args.save)
+# 新模型保存下来，【再训练再微调】微调完成剪枝模型
+torch.save({'cfg': cfg, 'state_dict': newmodel.state_dict()}, args.save) # args.save=--save pruned.pth.tar
 
 print(newmodel)
 model = newmodel

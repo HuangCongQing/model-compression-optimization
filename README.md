@@ -4,7 +4,7 @@
  * @Company(School): UCAS
  * @Email: 1756260160@qq.com
  * @Date: 2022-10-16 10:28:52
- * @LastEditTime: 2022-10-16 10:55:36
+ * @LastEditTime: 2022-10-16 10:57:48
  * @FilePath: /model-compression-optimization/README.md
 -->
 # model-compression-optimization
@@ -14,7 +14,7 @@ model compression and optimization for deployment for Pytorch, including knowled
 
 ## 1 pruning(剪枝)
 
-### Learning Efficient Convolutional Networks Through Network Slimming (ICCV2017)
+### 01 Learning Efficient Convolutional Networks Through Network Slimming (ICCV2017)
 docs: https://www.yuque.com/huangzhongqing/pytorch/iar4s1
 
 code: [pruning/01NetworkSlimming](pruning/01NetworkSlimming)
@@ -25,6 +25,14 @@ code reference:
 >* https://github.com/Eric-mingjie/network-slimming
 ● We also add support for ResNet and DenseNet.
 
+
+
+### 02 TODO
+
+
+
+
+### 03 TODO
 
 ## 2 quantization(量化)
 

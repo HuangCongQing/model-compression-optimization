@@ -122,16 +122,16 @@ for [m0, m1] in zip(model.modules(), newmodel.modules()): # Conv,BN,ReLU final:R
         m1.bias.data = m0.bias.data[idx1].clone()
         m1.running_mean = m0.running_mean[idx1].clone()
         m1.running_var = m0.running_var[idx1].clone()
-        # 修改为下一层的输入输出channel
+        # 修改为下一层的输入输出channel（为啥在BN层修改为下一层的input_channel和out_channel???）
         layer_id_in_cfg += 1
-        start_mask = end_mask.clone()
+        start_mask = end_mask.clone() # 将当前层的输出channel变为输入channel（新层的input_channel）比如3
         if layer_id_in_cfg < len(cfg_mask):  # do not change in Final FC
-            end_mask = cfg_mask[layer_id_in_cfg]
+            end_mask = cfg_mask[layer_id_in_cfg] # 得到下一层的输出channel（新层的out_channel） 比如64（可能有删减变为53）
 
     elif isinstance(m0, nn.Conv2d):
         # 权重w的shape(out_channel, in_channel, k1, k2)
-        idx0 = np.squeeze(np.argwhere(np.asarray(start_mask.cpu().numpy()))) # 
-        idx1 = np.squeeze(np.argwhere(np.asarray(end_mask.cpu().numpy())))
+        idx0 = np.squeeze(np.argwhere(np.asarray(start_mask.cpu().numpy()))) # 比如3
+        idx1 = np.squeeze(np.argwhere(np.asarray(end_mask.cpu().numpy()))) #  比如64（可能有删减变为53）
         print('In shape: {:d} Out shape:{:d}'.format(idx0.shape[0], idx1.shape[0])) # In shape: 48 Out shape:64
         # 注意weight维度为(out_channel, in_channel, k1, k2) ,其中kernel_size=(5, 5)，两个卷积层连接，下一层的输入维度就等于当前层的c!!!
         w = m0.weight.data[:, idx0, :, :].clone() # oldmodel # 只选择赋值有1的下标   data(out_channel, in_channel, k1, k2) note:  https://www.yuque.com/huangzhongqing/lxph5a/kdwd5q#iY7XX

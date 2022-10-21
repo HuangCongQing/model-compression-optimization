@@ -118,7 +118,7 @@ end_mask = cfg_mask[layer_id_in_cfg] # 输出channel    cfg_mask：每一层满�
 for [m0, m1] in zip(model.modules(), newmodel.modules()): # Conv,BN,ReLU final:ReLU
     if isinstance(m0, nn.BatchNorm2d):
         idx1 = np.squeeze(np.argwhere(np.asarray(end_mask.cpu().numpy()))) # 得到满足条件的下标列表  np.argwhere:返回条件非0的数组元组的索引
-        m1.weight.data = m0.weight.data[idx1].clone() # 只赋值有1的下标
+        m1.weight.data = m0.weight.data[idx1].clone() # 只选择赋值有1的下标
         m1.bias.data = m0.bias.data[idx1].clone()
         m1.running_mean = m0.running_mean[idx1].clone()
         m1.running_var = m0.running_var[idx1].clone()
@@ -129,13 +129,13 @@ for [m0, m1] in zip(model.modules(), newmodel.modules()): # Conv,BN,ReLU final:R
             end_mask = cfg_mask[layer_id_in_cfg]
 
     elif isinstance(m0, nn.Conv2d):
-        # 权重w的shape（c_in,c_out,w,h ）
+        # 权重w的shape(out_channel, in_channel, k1, k2)
         idx0 = np.squeeze(np.argwhere(np.asarray(start_mask.cpu().numpy()))) # 
         idx1 = np.squeeze(np.argwhere(np.asarray(end_mask.cpu().numpy())))
         print('In shape: {:d} Out shape:{:d}'.format(idx0.shape[0], idx1.shape[0])) # In shape: 48 Out shape:64
-        # 注意卷积核Tensor维度为[n, c, w, h]，两个卷积层连接，下一层的输入维度n'就等于当前层的c!!!???
-        w = m0.weight.data[:, idx0, :, :].clone() # oldmodel  data(out_channel, in_channel, k1, k2)      xxx->Conv2d (BCHW)
-        w = w[idx1, :, :, :].clone() # ?????将所需权重赋值到剪枝后的模型
+        # 注意weight维度为(out_channel, in_channel, k1, k2) ,其中kernel_size=(5, 5)，两个卷积层连接，下一层的输入维度就等于当前层的c!!!
+        w = m0.weight.data[:, idx0, :, :].clone() # oldmodel # 只选择赋值有1的下标   data(out_channel, in_channel, k1, k2) note:  https://www.yuque.com/huangzhongqing/lxph5a/kdwd5q#iY7XX
+        w = w[idx1, :, :, :].clone() # 将所需权重赋值到剪枝后的模型
         m1.weight.data = w.clone()
         # m1.bias.data = m0.bias.data[idx1].clone()
     elif isinstance(m0, nn.Linear): # 最后1层 10分类

@@ -134,7 +134,7 @@ for [m0, m1] in zip(model.modules(), newmodel.modules()): # Conv,BN,ReLU final:R
         idx1 = np.squeeze(np.argwhere(np.asarray(end_mask.cpu().numpy())))
         print('In shape: {:d} Out shape:{:d}'.format(idx0.shape[0], idx1.shape[0])) # In shape: 48 Out shape:64
         # 注意卷积核Tensor维度为[n, c, w, h]，两个卷积层连接，下一层的输入维度n'就等于当前层的c!!!???
-        w = m0.weight.data[:, idx0, :, :].clone() # oldmodel   w()         Conv2d (BCHW)
+        w = m0.weight.data[:, idx0, :, :].clone() # oldmodel  data(out_channel, in_channel, k1, k2)      xxx->Conv2d (BCHW)
         w = w[idx1, :, :, :].clone() # ?????将所需权重赋值到剪枝后的模型
         m1.weight.data = w.clone()
         # m1.bias.data = m0.bias.data[idx1].clone()

@@ -4,7 +4,7 @@
  * @Company(School): UCAS
  * @Email: 1756260160@qq.com
  * @Date: 2022-10-16 10:28:52
- * @LastEditTime: 2022-10-16 11:00:23
+ * @LastEditTime: 2022-10-23 19:37:15
  * @FilePath: /model-compression-optimization/README.md
 -->
 # model-compression-optimization
@@ -32,12 +32,15 @@ code reference:
 
 
 
-### 03 TODO
-
-
-
-
 ## 2 quantization(量化)
+
+
+### 01开山之作： Distilling the knowledge in a neural network（NIPS2014）
+
+
+docs: https://www.yuque.com/huangzhongqing/lightweight/lno6i7
+
+code: [3distillation/01Distilling the knowledge in a neural network](3distillation/01Distilling%20the%20knowledge%20in%20a%20neural%20network)
 
 
 

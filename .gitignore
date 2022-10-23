@@ -1,7 +1,7 @@
 1pruning/01NetworkSlimming/data
 # 权重文件
 *.tar
-
+3distillation/01Distilling_the_knowledge_in_a_neural_network/dataset
 
 
 

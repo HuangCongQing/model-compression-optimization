@@ -4,7 +4,7 @@
  * @Company(School): UCAS
  * @Email: 1756260160@qq.com
  * @Date: 2022-10-16 10:28:52
- * @LastEditTime: 2022-10-23 21:40:42
+ * @LastEditTime: 2022-10-23 23:09:01
  * @FilePath: /model-compression-optimization/README.md
 -->
 # model-compression-optimization
@@ -35,6 +35,10 @@ code reference:
 ## 2 quantization(量化)
 
 
+
+## 3 knowledge distillation(知识蒸馏)
+
+
 ### 01开山之作： Distilling the knowledge in a neural network（NIPS2014）
 
 
@@ -44,10 +48,6 @@ code: [3distillation/01Distilling the knowledge in a neural network](3distillati
 
 
 code reference: https://github.com/Eli-yu-first/Artificial_Intelligence
-
-
-
-## 3 knowledge distillation(知识蒸馏)
 
 
 ## 4 TODOlist

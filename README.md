@@ -4,7 +4,7 @@
  * @Company(School): UCAS
  * @Email: 1756260160@qq.com
  * @Date: 2022-10-16 10:28:52
- * @LastEditTime: 2022-10-23 19:37:15
+ * @LastEditTime: 2022-10-23 21:40:42
  * @FilePath: /model-compression-optimization/README.md
 -->
 # model-compression-optimization
@@ -40,7 +40,10 @@ code reference:
 
 docs: https://www.yuque.com/huangzhongqing/lightweight/lno6i7
 
-code: [3distillation/01Distilling the knowledge in a neural network](3distillation/01Distilling%20the%20knowledge%20in%20a%20neural%20network)
+code: [3distillation/01Distilling the knowledge in a neural network](3distillation/01Distilling_the_knowledge_in_a_neural_network)
+
+
+code reference: https://github.com/Eli-yu-first/Artificial_Intelligence
 
 
 

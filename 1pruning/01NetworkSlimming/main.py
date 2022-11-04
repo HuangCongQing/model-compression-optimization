@@ -78,7 +78,7 @@ test_loader = torch.utils.data.DataLoader(
 # 模型
 if args.refine:
     checkpoint = torch.load(args.refine)
-    model = vgg(cfg=checkpoint['cfg'])
+    model = vgg(cfg=checkpoint['cfg']) # 根据剪枝后的模型重新配置卷积参数，剪枝后的参数配置保存在checkpoint['cfg']
     model.cuda()
     model.load_state_dict(checkpoint['state_dict'])
 else:

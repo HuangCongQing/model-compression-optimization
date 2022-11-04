@@ -58,8 +58,9 @@ y, i = torch.sort(bn) #从小到大排序
 thre_index = int(total * args.percent) # 总量的70%
 thre = y[thre_index] # 选择70%百分比位置的参数的卡点阈值0.2529
 
+# 得到新的cfg配置参数
 pruned = 0
-cfg = [] # 修改生成新的网络配置参数(小于thre置为0)===============================
+cfg = [] # 修改生成新的网络配置参数cfg，并保存在pth中，用于下次refine微调(小于thre置为0)===============================
 cfg_mask = []
 for k, m in enumerate(model.modules()):
     if isinstance(m, nn.BatchNorm2d):
@@ -143,7 +144,11 @@ for [m0, m1] in zip(model.modules(), newmodel.modules()): # Conv,BN,ReLU final:R
         m1.weight.data = m0.weight.data[:, idx0].clone()
 
 # 新模型保存下来，【再训练再微调】微调完成剪枝模型
-torch.save({'cfg': cfg, 'state_dict': newmodel.state_dict()}, args.save) # args.save=--save pruned.pth.tar
+torch.save(
+            {'cfg': cfg,  # 剪枝后的新的卷积配置参数，用于新的微调时，重新配置参数
+            'state_dict': newmodel.state_dict()
+            }, 
+            args.save) # args.save=--save pruned.pth.tar
 
 print(newmodel)
 model = newmodel

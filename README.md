@@ -4,7 +4,7 @@
  * @Company(School): UCAS
  * @Email: 1756260160@qq.com
  * @Date: 2022-10-16 10:28:52
- * @LastEditTime: 2022-11-26 22:16:36
+ * @LastEditTime: 2022-11-26 22:18:01
  * @FilePath: \model-compression-optimization\README.md
 -->
 # model-compression-optimization
@@ -14,7 +14,7 @@ model compression and optimization for deployment for Pytorch, including knowled
 
 ## 1 pruning(剪枝)
 
-### 01 Learning Efficient Convolutional Networks Through Network Slimming (ICCV2017)
+#### 01 Learning Efficient Convolutional Networks Through Network Slimming (ICCV2017)
 docs: https://www.yuque.com/huangzhongqing/pytorch/iar4s1
 
 code: [pruning/01NetworkSlimming](pruning/01NetworkSlimming)
@@ -27,7 +27,7 @@ code reference:
 
 
 
-### 02 TODO
+#### 02 TODO
 
 
 
@@ -35,12 +35,12 @@ code reference:
 ## 2 quantization(量化)
 
 
-### 01 TODO
+#### 01 TODO
 
 ## 3 knowledge distillation(知识蒸馏)
 
 
-### 01开山之作： Distilling the knowledge in a neural network（NIPS2014）
+#### 01开山之作： Distilling the knowledge in a neural network（NIPS2014）
 
 
 docs: https://www.yuque.com/huangzhongqing/lightweight/lno6i7
@@ -55,7 +55,7 @@ code reference: https://github.com/Eli-yu-first/Artificial_Intelligence
 
 
 
-### 01 DARTS(ICLR'2019)【Differentiable Neural Architecture Search 可微分结构】—年轻人的第一个NAS模型
+#### 01 DARTS(ICLR'2019)【Differentiable Neural Architecture Search 可微分结构】—年轻人的第一个NAS模型
 
 doc：https://www.yuque.com/huangzhongqing/lightweight/esyutcdebpmowgi3
 

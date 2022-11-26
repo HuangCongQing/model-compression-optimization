@@ -4,7 +4,7 @@
  * @Company(School): UCAS
  * @Email: 1756260160@qq.com
  * @Date: 2022-10-16 10:28:52
- * @LastEditTime: 2022-11-26 22:18:01
+ * @LastEditTime: 2022-11-26 23:24:36
  * @FilePath: \model-compression-optimization\README.md
 -->
 # model-compression-optimization
@@ -59,6 +59,7 @@ code reference: https://github.com/Eli-yu-first/Artificial_Intelligence
 
 doc：https://www.yuque.com/huangzhongqing/lightweight/esyutcdebpmowgi3
 
+code: [4NAS/01DARTS(ICLR2019)/pt.darts](4NAS/01DARTS(ICLR2019)/pt.darts)
 code reference:：https://github.com/khanrc/pt.darts
 
 ### 02 TODO

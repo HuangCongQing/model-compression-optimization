@@ -4,8 +4,8 @@
  * @Company(School): UCAS
  * @Email: 1756260160@qq.com
  * @Date: 2022-10-16 10:28:52
- * @LastEditTime: 2022-10-23 23:09:01
- * @FilePath: /model-compression-optimization/README.md
+ * @LastEditTime: 2022-11-26 22:16:36
+ * @FilePath: \model-compression-optimization\README.md
 -->
 # model-compression-optimization
 model compression and optimization for deployment for Pytorch, including knowledge distillation, quantization and pruning.(知识蒸馏，量化，剪枝)
@@ -51,7 +51,19 @@ code: [3distillation/01Distilling the knowledge in a neural network](3distillati
 code reference: https://github.com/Eli-yu-first/Artificial_Intelligence
 
 
-## 4 TODOlist
+## 4 NAS神经网络搜索(Neural Architecture Search,简称NAS)
+
+
+
+### 01 DARTS(ICLR'2019)【Differentiable Neural Architecture Search 可微分结构】—年轻人的第一个NAS模型
+
+doc：https://www.yuque.com/huangzhongqing/lightweight/esyutcdebpmowgi3
+
+code reference:：https://github.com/khanrc/pt.darts
+
+### 02 TODO
+
+## TODOlist
 
 
 

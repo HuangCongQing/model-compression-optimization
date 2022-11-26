@@ -59,6 +59,7 @@ class Architect():
             for a, va in zip(self.net.alphas(), self.v_net.alphas()):
                 va.copy_(a)
 
+    # main入口=====================================
     def unrolled_backward(self, trn_X, trn_y, val_X, val_y, xi, w_optim):
         """ Compute unrolled loss and backward its gradients
         计算目标函数关于 α 的近似梯度
@@ -86,6 +87,7 @@ class Architect():
             for alpha, da, h in zip(self.net.alphas(), dalpha, hessian):
                 alpha.grad = da - xi*h    # 求出了目标函数的近似梯度值
 
+    # 被unrolled_backward调用
     def compute_hessian(self, dw, trn_X, trn_y):   
         """
         求经过泰勒展开后的第二项的近似值

@@ -47,14 +47,16 @@ def main():
                                 net_crit, device_ids=config.gpus)
     model = model.to(device)
 
-    # weights optimizer 用于网络参数 w 的优化器  
+    # 可以看到一共训练两类参数w和alpha============================================
+
+    # 1 weights optimizer 用于网络参数 w 的优化器  
     # w_lr 初始值是0.025，使用的余弦退火调度更新学习率，每个epoch的学习率都不一样
     # w_momentum = 0.9 常用参数
     # w_weight_decay = 3e-4  正则化参数 
     w_optim = torch.optim.SGD(model.weights(), config.w_lr, momentum=config.w_momentum,
                               weight_decay=config.w_weight_decay)
 
-    # alphas optimizer 用于结构参数 α 的优化器
+    # 2 alphas optimizer 用于结构参数 α 的优化器
     alpha_optim = torch.optim.Adam(model.alphas(), config.alpha_lr, betas=(0.5, 0.999),
                                    weight_decay=config.alpha_weight_decay)
 

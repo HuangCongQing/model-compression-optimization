@@ -55,7 +55,7 @@ class SearchCNN(nn.Module):
                 reduction = False
 
             # 构建cell  每个cell的input nodes是前前cell和前一个cell的输出
-            cell = SearchCell(n_nodes, C_pp, C_p, C_cur, reduction_p, reduction)    
+            cell = SearchCell(n_nodes, C_pp, C_p, C_cur, reduction_p, reduction)    # 4NAS\01DARTS(ICLR2019)\pt.darts\models\search_cells.py
             reduction_p = reduction
             self.cells.append(cell)
             C_cur_out = C_cur * n_nodes

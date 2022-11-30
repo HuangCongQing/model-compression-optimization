@@ -28,12 +28,12 @@ class vgg(nn.Module):
     # 构建神经网络层
     def make_layers(self, cfg, batch_norm=False):
         layers = []
-        in_channels = 3
+        in_channels = 3 # 输入channel是3
         for v in cfg:
             if v == 'M':
                 layers += [nn.MaxPool2d(kernel_size=2, stride=2)]
             else:
-                conv2d = nn.Conv2d(in_channels, v, kernel_size=3, padding=1, bias=False) # 2d卷积
+                conv2d = nn.Conv2d(in_channels, v, kernel_size=3, padding=1, bias=False) # 2d卷积(输入channel， 输出channel)
                 # BN层
                 if batch_norm:
                     layers += [conv2d, nn.BatchNorm2d(v), nn.ReLU(inplace=True)] # Conv,BN,ReLU

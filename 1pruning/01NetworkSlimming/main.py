@@ -160,7 +160,7 @@ for epoch in range(args.start_epoch, args.epochs):
     if epoch in [args.epochs*0.5, args.epochs*0.75]:
         for param_group in optimizer.param_groups:
             param_group['lr'] *= 0.1
-    train(epoch)
+    train(epoch) #  updateBN()
     prec1 = test()
     is_best = prec1 > best_prec1
     best_prec1 = max(prec1, best_prec1)

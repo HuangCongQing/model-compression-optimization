@@ -58,7 +58,7 @@ y, i = torch.sort(bn) #从小到大排序
 thre_index = int(total * args.percent) # 总量的70%
 thre = y[thre_index] # 选择70%百分比位置的参数的卡点阈值0.2529
 
-# 得到新的cfg配置参数
+# 对应channel BN层gamma置0 && 得到新的cfg配置参数
 pruned = 0
 cfg = [] # 修改生成新的网络配置参数cfg，并保存在pth中，用于下次refine微调(小于thre置为0)===============================
 cfg_mask = []

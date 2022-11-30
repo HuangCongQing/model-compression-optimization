@@ -107,6 +107,8 @@ class NetModel():
             self.criterion_adv = CriterionAdv(args.adv_loss_type).cuda()
             if args.adv_loss_type == 'wgan-gp': self.criterion_AdditionalGP = CriterionAdditionalGP(D_model, args.lambda_gp).cuda()
             self.criterion_adv_for_G = CriterionAdvForG(args.adv_loss_type).cuda()
+        # Channel-wise Knowledge Distillation for Dense Prediction
+        # https://www.yuque.com/huangzhongqing/lightweight/dourdf2ogh9y1cx9#VHZBv
         if args.cwd:
             self.criterion_cwd = CriterionCWD(args.norm_type,args.divergence,args.temperature).cuda()
             if args.cwd_feat:

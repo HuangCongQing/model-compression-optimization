@@ -197,23 +197,21 @@ class ChannelNorm(nn.Module):
     def forward(self,featmap):
         n,c,h,w = featmap.shape
         featmap = featmap.reshape((n,c,-1))
-        featmap = featmap.softmax(dim=-1)
+        featmap = featmap.softmax(dim=-1) # 在这h*w一维度进行softmax？（如果是图片分类，h*c代表不同的像素相似度占比）
         return featmap
 
-
-
+# need
 class CriterionCWD(nn.Module):
 
     def __init__(self,norm_type='none',divergence='mse',temperature=1.0):
     
         super(CriterionCWD, self).__init__()
-       
 
         # define normalize function
-        if norm_type == 'channel':
-            self.normalize = ChannelNorm()
-        elif norm_type =='spatial':
-            self.normalize = nn.Softmax(dim=1)
+        if norm_type == 'channel': # channel上>>>>>>>>>>>>>>>...
+            self.normalize = ChannelNorm() # 
+        elif norm_type =='spatial': # 空间上
+            self.normalize = nn.Softmax(dim=1) # n,c,h,w  在channel这一维度softmax（如果是图片分类，C代表不同的label相似度占比）
         elif norm_type == 'channel_mean':
             self.normalize = lambda x:x.view(x.size(0),x.size(1),-1).mean(-1)
         else:

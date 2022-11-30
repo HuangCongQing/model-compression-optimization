@@ -4,8 +4,8 @@
  * @Company(School): UCAS
  * @Email: 1756260160@qq.com
  * @Date: 2022-10-16 10:28:52
- * @LastEditTime: 2022-11-26 23:29:16
- * @FilePath: \model-compression-optimization\README.md
+ * @LastEditTime: 2022-11-30 17:28:23
+ * @FilePath: /model-compression-optimization/README.md
 -->
 # model-compression-optimization
 model compression and optimization for deployment for Pytorch, including knowledge distillation, quantization and pruning.(知识蒸馏，量化，剪枝)
@@ -49,6 +49,17 @@ code: [3distillation/01Distilling the knowledge in a neural network](3distillati
 
 
 code reference: https://github.com/Eli-yu-first/Artificial_Intelligence
+
+
+#### 02  Channel-wise Knowledge Distillation for Dense Prediction（ICCV2021）
+
+
+docs: https://www.yuque.com/huangzhongqing/lightweight/dourdf2ogh9y1cx9#VHZBv
+
+code: [3distillation/02SemSeg-distill](3distillation/02SemSeg-distill)
+
+
+code reference: https://github.com/irfanICMLL/TorchDistiller/tree/main/SemSeg-distill
 
 
 ## 4 NAS神经网络搜索(Neural Architecture Search,简称NAS)

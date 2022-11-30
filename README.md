@@ -4,8 +4,8 @@
  * @Company(School): UCAS
  * @Email: 1756260160@qq.com
  * @Date: 2022-10-16 10:28:52
- * @LastEditTime: 2022-10-23 23:09:01
- * @FilePath: /model-compression-optimization/README.md
+ * @LastEditTime: 2022-11-26 23:29:16
+ * @FilePath: \model-compression-optimization\README.md
 -->
 # model-compression-optimization
 model compression and optimization for deployment for Pytorch, including knowledge distillation, quantization and pruning.(知识蒸馏，量化，剪枝)
@@ -14,7 +14,7 @@ model compression and optimization for deployment for Pytorch, including knowled
 
 ## 1 pruning(剪枝)
 
-### 01 Learning Efficient Convolutional Networks Through Network Slimming (ICCV2017)
+#### 01 Learning Efficient Convolutional Networks Through Network Slimming (ICCV2017)
 docs: https://www.yuque.com/huangzhongqing/pytorch/iar4s1
 
 code: [pruning/01NetworkSlimming](pruning/01NetworkSlimming)
@@ -27,7 +27,7 @@ code reference:
 
 
 
-### 02 TODO
+#### 02 TODO
 
 
 
@@ -35,12 +35,12 @@ code reference:
 ## 2 quantization(量化)
 
 
-### 01 TODO
+#### 01 TODO
 
 ## 3 knowledge distillation(知识蒸馏)
 
 
-### 01开山之作： Distilling the knowledge in a neural network（NIPS2014）
+#### 01开山之作： Distilling the knowledge in a neural network（NIPS2014）
 
 
 docs: https://www.yuque.com/huangzhongqing/lightweight/lno6i7
@@ -51,7 +51,23 @@ code: [3distillation/01Distilling the knowledge in a neural network](3distillati
 code reference: https://github.com/Eli-yu-first/Artificial_Intelligence
 
 
-## 4 TODOlist
+## 4 NAS神经网络搜索(Neural Architecture Search,简称NAS)
+
+video:
+* 神经网络结构搜索 Neural Architecture Search 系列:https://space.bilibili.com/1369507485/channel/collectiondetail?sid=788500
+* PPT: [4NAS/NAS基础.pptx](4NAS/NAS基础.pptx)
+
+#### 01 DARTS(ICLR'2019)【Differentiable Neural Architecture Search 可微分结构】—年轻人的第一个NAS模型
+
+doc：https://www.yuque.com/huangzhongqing/lightweight/esyutcdebpmowgi3
+
+code: [4NAS/01DARTS(ICLR2019)/pt.darts](4NAS/01DARTS(ICLR2019)/pt.darts)
+code reference:：https://github.com/khanrc/pt.darts
+video:【论文解读】Darts可微分神经网络架构搜索算法:https://www.bilibili.com/video/BV1Mm4y1R7Cw/?vd_source=617461d43c4542e4c5a3ed54434a0e55
+
+### 02 TODO
+
+## TODOlist
 
 
 

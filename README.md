@@ -4,7 +4,7 @@
  * @Company(School): UCAS
  * @Email: 1756260160@qq.com
  * @Date: 2022-10-16 10:28:52
- * @LastEditTime: 2022-12-07 20:11:34
+ * @LastEditTime: 2022-12-07 20:16:23
  * @FilePath: /model-compression-optimization/README.md
 -->
 # model-compression-optimization
@@ -19,6 +19,7 @@ model compression and optimization for deployment for Pytorch, including knowled
 | **Pruning Method** | **Code location** | **Docs** | **Remark** |
 | --- | --- | --- | --- |
 | **01开山之作：Learning Efficient Convolutional Networks Through Network Slimming (ICCV2017)** | code: [pruning/01NetworkSlimming](pruning/01NetworkSlimming) <br> code reference: <br> https://github.com/foolwood/pytorch-slimming <br>  https://github.com/Eric-mingjie/network-slimming| https://www.yuque.com/huangzhongqing/pytorch/iar4s1 | placeholder |
+| **02【ICCV2017】ThiNet** | code: [1pruning/02ThiNet](1pruning/02ThiNet) <br> code reference: <br> https://github.com/SSriven/ThiNet | https://www.yuque.com/huangzhongqing/lightweight/pnzhr3tb8wfdciep#Kownj | 1 |
 | **Coming...** | 1 | 1 | 1 |
 
 
@@ -110,7 +111,7 @@ code: [4NAS/01DARTS(ICLR2019)/pt.darts](4NAS/01DARTS(ICLR2019)/pt.darts)
 code reference:：https://github.com/khanrc/pt.darts
 video:【论文解读】Darts可微分神经网络架构搜索算法:https://www.bilibili.com/video/BV1Mm4y1R7Cw/?vd_source=617461d43c4542e4c5a3ed54434a0e55
 
-### 02 TODO
+#### 02 TODO
 
 ## TODOlist
 

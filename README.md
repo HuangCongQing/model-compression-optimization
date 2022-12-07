@@ -4,7 +4,7 @@
  * @Company(School): UCAS
  * @Email: 1756260160@qq.com
  * @Date: 2022-10-16 10:28:52
- * @LastEditTime: 2022-12-07 20:08:59
+ * @LastEditTime: 2022-12-07 20:11:34
  * @FilePath: /model-compression-optimization/README.md
 -->
 # model-compression-optimization
@@ -15,7 +15,7 @@ model compression and optimization for deployment for Pytorch, including knowled
 ## 1 Pruning(剪枝)
 
 
-
+#### 算法总表
 | **Pruning Method** | **Code location** | **Docs** | **Remark** |
 | --- | --- | --- | --- |
 | **01开山之作：Learning Efficient Convolutional Networks Through Network Slimming (ICCV2017)** | code: [pruning/01NetworkSlimming](pruning/01NetworkSlimming) <br> code reference: <br> https://github.com/foolwood/pytorch-slimming <br>  https://github.com/Eric-mingjie/network-slimming| https://www.yuque.com/huangzhongqing/pytorch/iar4s1 | placeholder |
@@ -45,8 +45,18 @@ code reference:
 
 #### 01 TODO
 
+
+#### 算法总表
+
+| **量化 Method** | **Code location** | **Docs** | **Remark** |
+| --- | --- | --- | --- |
+| **Coming...** | 1 | 1 | 1 |
+
+
+
 ## 3 knowledge distillation(知识蒸馏)
 
+#### 算法总表
 | **KD Method** | **Code location** | **Docs** | **Remark** |
 | --- | --- | --- | --- |
 | **01开山之作： Distilling the knowledge in a neural network（NIPS2014）ndom** | code: [3distillation/01Distilling the knowledge in a neural network](3distillation/01Distilling_the_knowledge_in_a_neural_network)<br>code reference: https://github.com/Eli-yu-first/Artificial_Intelligence | https://www.yuque.com/huangzhongqing/lightweight/lno6i7 | 1 |
@@ -85,6 +95,7 @@ video:
 
 
 
+#### 算法总表
 | **NAS Method** | **Code location** | **Docs** | **Remark** |
 | --- | --- | --- | --- |
 | **01 DARTS(ICLR'2019)【Differentiable Neural Architecture Search 可微分结构】—年轻人的第一个NAS模型** | code: [4NAS/01DARTS(ICLR2019)/pt.darts](4NAS/01DARTS(ICLR2019)/pt.darts) <br> code reference: <br> https://github.com/khanrc/pt.darts | hthttps://www.yuque.com/huangzhongqing/lightweight/esyutcdebpmowgi3 | video:【论文解读】Darts可微分神经网络架构搜索算法:https://www.bilibili.com/video/BV1Mm4y1R7Cw/?vd_source=617461d43c4542e4c5a3ed54434a0e55 |

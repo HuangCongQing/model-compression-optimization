@@ -17,7 +17,7 @@ from compute_flops import print_model_param_flops,print_model_param_nums
 cuda = True and torch.cuda.is_available()
 save = 'pruned_model'
 dataset = 'cifar10'
-batch_size = 64
+batch_size = 64 # 修改
 test_batch_size = 256
 log_interval = 100
 
@@ -32,6 +32,8 @@ if model_path:
         print("=> loading checkpoint '{}'".format(model_path))
         checkpoint = torch.load(model_path)
         config = checkpoint['config']
+        # cfg: 16 : [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 'M', 512, 512, 512, 'M', 512, 512, 512],
+        # fc = [4096,4096]
         model = vgg(num_classes=10,cfg = config[0],fc=config[1])
         if cuda:
             model.cuda()
@@ -95,6 +97,8 @@ def get_T(s_w,w,r):
     while len(T) < C * r: # 64x0.3
         min_value = float("inf")
         for i in I: # 遍历64个In_channel
+            if i in T:
+                continue
             temT = T + [i] # In_Channel的选择 List
             #  核心算法！筛选的是第i层的输出通道、x第i+1层的输入通道~~
             #  得到featuremap*filters 得到维度BCHW： 先对CHW求和，再对B求和平方得到value
@@ -104,7 +108,10 @@ def get_T(s_w,w,r):
                 min_i = i # 得到featuremap的sum最小的Channel下标
         T.append(min_i) # featuremap的sum最小的Channel下标
         I.remove(i) # 将得到的最小下标移除
-    return I # 应该是T？？？[40, 13, 40, 40, 13, 40, 40, 13, 40, 40, 13, 40, 40, 13, 40, 40, 13, 40, 40, 13]
+    # T是输入需要删除的通道数，得到剪枝后的index
+    indices_pruned = list(set([i for i in range(C)]) - set(T)) # chongiqng add
+    # return I # 应该是T？？？ fixed:
+    return indices_pruned # 应该是T[40, 13, 40, 40, 13, 40, 40, 13, 40, 40, 13, 40, 40, 13, 40, 40, 13, 40, 40, 13]
 
 
 # 得到删减的cfg
@@ -149,6 +156,7 @@ for (m1,m2) in zip(model.modules(),newmodel.modules()):
         s_w = generate_windows(m1,last_output) # >>>>>>>>>>>>>>>>>>>>>>>...
         random_filter = np.random.randint(0,m1.weight.data.shape[0])  # （0, out_channels） 随机选1个
         w = m1.weight.data[random_filter] # 随机选出某个out_channel的weight(1,in_channel,3,3)
+        # 需要删除的通道数T
         T = get_T(s_w.cpu(),w.cpu(),conv_r) # {list:44} ThiNet: A Filter Level Pruning Method for Deep Neural Network Compression>>>>>>>>>
 
         last_conv_2.weight.data = last_conv_1.weight.data[T].clone() # 筛选Out_channel

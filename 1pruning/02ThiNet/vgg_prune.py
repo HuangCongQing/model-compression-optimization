@@ -50,48 +50,64 @@ test(model,test_loader,cuda=cuda)
 t2 = time.time()
 print("剪枝前测试所需时间：",(t2-t1)*1000)
 
-
+# 将last_output的(B,C,H,W) --> (B,C,3,3) 3,3是random随机选择的
+# last_output: 第一次卷积的output输出(B,C,H,W)
 def generate_windows(layer,last_output):
-    output_h = last_output.shape[2]
-    output_w = last_output.shape[3]
-    windows_size_h = layer.kernel_size[0]
-    windows_size_w = layer.kernel_size[1]
-    H = output_h -windows_size_h
-    W = output_w -windows_size_w
+    output_h = last_output.shape[2] # 32
+    output_w = last_output.shape[3] # 32
+    windows_size_h = layer.kernel_size[0] # 3
+    windows_size_w = layer.kernel_size[1] # 3
+    H = output_h -windows_size_h # !!! 输出的w, H 减去卷积核size
+    W = output_w -windows_size_w # !!!
     if H < 0: H = 0
     if W < 0: W = 0
     x1 = np.random.randint(0,H + 1)
     x2 = x1 + windows_size_h
     y1 = np.random.randint(0,W + 1)
     y2 = y1 + windows_size_w
+    # 裁剪后的featuremap  注意：x1 and x2  差值是3（kernel_size）
     s_w = last_output[:,:,x1:x2,y1:y2]
     return s_w
 
 # paper: ThiNet: A Filter Level Pruning Method for Deep Neural Network Compression
+# s_w_i: 将last_output的(B,in_channel,H,W) --> (B,C_out,3,3) wh(3,3)是random随机选择的
+# w_i    : 某个out_channel的weight(1,in_channel,3,3)   1是random随机选择的
+# r      : 0.3
 def get_T(s_w,w,r):
-    
+    """基于Greedy Method的Channel Selection 得到裁剪后的in_channel的list
+    Args:
+        s_w_i(B,in_channel,3,3): 将last_output的(B,C_out,H,W) --> (B,C_out,3,3) 3,3是random随机选择的
+            eg. (16,64,3,3)
+        w_i(1,in_channel,3,3)    : 某个out_channel的weight(1,in_channel,3,3)   1是random随机选择的
+            eg. (1,64,3,3)也就是(64,3,3)
+        r : 0.3
+    Returns: T{list[int]:44} : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43]
+    """
     T = []
-    C = s_w.shape[1]
+    C = s_w.shape[1] # in_channel size eg.64
     I = [i for i in range(C)]
     pad = 0
-    if s_w.shape[2] < w.shape[2]:
+    if s_w.shape[2] < w.shape[2]: # False always
         pad = w.shape[2] - s_w.shape[2]
-    s_w = np.pad(s_w.detach().numpy(),((0,0),(0,0),(0,pad),(0,pad)))
+    s_w = np.pad(s_w.detach().numpy(),((0,0),(0,0),(0,pad),(0,pad))) # 等于无填充 https://blog.csdn.net/zenghaitao0128/article/details/78713663
     w = w.detach().numpy()
 
-    while len(T) < C * r:
+    while len(T) < C * r: # 64x0.3
         min_value = float("inf")
-        for i in I:
-            temT = T + [i]
-            value = np.sum(np.sum((s_w[:,temT,:,:]*w[temT,:,:]),axis=(1,2,3))) ** 2
+        for i in I: # 遍历64个In_channel
+            temT = T + [i] # In_Channel的选择 List
+            #  核心算法！筛选的是第i层的输出通道、x第i+1层的输入通道~~
+            #  得到featuremap*filters 得到维度BCHW： 先对CHW求和，再对B求和平方得到value
+            value = np.sum(np.sum(  (s_w[:,temT,:,:]*w[temT,:,:]),axis=(1,2,3))) ** 2
             if value < min_value:
                 min_value = value
-                min_i = i
-        T.append(min_i)
-        I.remove(i)
-    return I
+                min_i = i # 得到featuremap的sum最小的Channel下标
+        T.append(min_i) # featuremap的sum最小的Channel下标
+        I.remove(i) # 将得到的最小下标移除
+    return I # 应该是T？？？[40, 13, 40, 40, 13, 40, 40, 13, 40, 40, 13, 40, 40, 13, 40, 40, 13, 40, 40, 13]
 
 
+# 得到删减的cfg
 conv_i = 0
 linear_i = 0
 conv_r = 0.3
@@ -101,7 +117,7 @@ new_fc = []
 for v in model.config[0]:
     a = v
     if a != "M":
-        a = int(np.floor(v * (1-conv_r)))
+        a = int(np.floor(v * (1-conv_r))) # 44
     new_cfg.append(a)
 for v in model.config[1]:
     a = v
@@ -109,54 +125,59 @@ for v in model.config[1]:
     new_fc.append(a)
 new_cfg[-1] = model.config[0][-1]
 
+# 剪枝后的model(但还没有权重)
 newmodel = vgg(num_classes=10,depth=19,cfg=new_cfg,fc=new_fc).cuda()
 
 x = next(iter(test_loader))[0].cuda()
 mask = np.random.choice(x.shape[0],16)
 x = x[mask]
 t1 = time.time()
+# 遍历新老model  m2是newmodel
+# (conv2d,BN,ReLU)
 for (m1,m2) in zip(model.modules(),newmodel.modules()):
     if isinstance(m1,nn.Conv2d): 
         if conv_i == 0:
-            last_output = m1(x)
-            last_conv_2 = m2
-            last_conv_1 = m1
-            last_T = [i for i in range(m1.weight.data.shape[1])]
+            last_output = m1(x) # 第一次卷积的output输出featuremap
+            last_conv_2 = m2 # 权重赋值
+            last_conv_1 = m1 # 权重赋值
+            last_T = [i for i in range(m1.weight.data.shape[1])] # last_T =[0,1,2] in_channel.shape = 3  Plus: shape: torch.Size([64, 3, 3, 3])
             conv_i += 1
             continue
             
         print('Pruning the {0}th Conv layer'.format(conv_i))
-        s_w = generate_windows(m1,last_output)
-        random_filter = np.random.randint(0,m1.weight.data.shape[0])
-        w = m1.weight.data[random_filter]
-        T = get_T(s_w.cpu(),w.cpu(),conv_r)
+        # featuremap： 将last_output的(B,C_out,H,W) --> (B,C,3,3) 3,3是random随机选择的
+        s_w = generate_windows(m1,last_output) # >>>>>>>>>>>>>>>>>>>>>>>...
+        random_filter = np.random.randint(0,m1.weight.data.shape[0])  # （0, out_channels） 随机选1个
+        w = m1.weight.data[random_filter] # 随机选出某个out_channel的weight(1,in_channel,3,3)
+        T = get_T(s_w.cpu(),w.cpu(),conv_r) # {list:44} ThiNet: A Filter Level Pruning Method for Deep Neural Network Compression>>>>>>>>>
 
-        last_conv_2.weight.data = last_conv_1.weight.data[T].clone()
-        last_conv_2.weight.data = last_conv_2.weight.data[:,last_T,:,:].clone()
+        last_conv_2.weight.data = last_conv_1.weight.data[T].clone() # 筛选Out_channel
+        last_conv_2.weight.data = last_conv_2.weight.data[:,last_T,:,:].clone() # 筛选In_channel(其实不用筛，就是所有的in_channel)
         
         last_bn_2.weight.data = last_bn_1.weight.data[T].clone()
         last_bn_2.bias.data = last_bn_1.bias.data[T].clone()
         last_bn_2.running_mean = last_bn_1.running_mean[T].clone()
         last_bn_2.running_var = last_bn_1.running_var[T].clone()
         
-        m2.weight.data = m1.weight.data[:,T,:,:].clone()
+        m2.weight.data = m1.weight.data[:,T,:,:].clone() # 裁剪i+1layer的的filter的in_channel相当于第i layer的featuremap的out_channel（filter的out_channel） torch.Size([64, 64, 3, 3]) -> torch.Size([64, 44, 3, 3]) <<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-        last_output = last_output[:,T,:,:]
+        last_output = last_output[:,T,:,:] # 剪枝后的
         last_output = m2(last_output)
         last_conv_2 = m2
         last_conv_1 = m1
-        last_T = T
-        conv_i += 1
+        last_T = T # 更新last_T
+        conv_i += 1 # 自加1
 
-
+    # Conv之后才会运行BN
     elif isinstance(m1,nn.BatchNorm2d):
-        last_output = m1(last_output)
-        last_bn_2 = m2
+        last_output = m1(last_output) # 这一层的输出featuremap
+        last_bn_2 = m2 # 第一次Conv之后
         last_bn_1 = m1
         
     elif isinstance(m1,nn.ReLU) or isinstance(m1,nn.MaxPool2d) or isinstance(m1,nn.Dropout):
         last_output = m1(last_output)
 
+    # Linear处理
     elif isinstance(m1,nn.Linear):
         if linear_i ==0:
             last_linear_2 = m2
@@ -171,7 +192,7 @@ for (m1,m2) in zip(model.modules(),newmodel.modules()):
         L1_norm = np.sum(weight_copy, axis=0)
         arg_max = np.argsort(L1_norm)
         alive_param_num = int(weight_copy.shape[1]*(1-linear_r))
-        arg_max_rev = arg_max[::-1][:alive_param_num]
+        arg_max_rev = arg_max[::-1][:alive_param_num] # <<<<<<<<<<<<<<<<<<<<<<<<<<<,
         
         last_linear_2.weight.data = last_linear_1.weight.data[arg_max_rev.tolist()].clone()
         last_linear_2.weight.data = last_linear_2.weight.data[:,last_T].clone()
@@ -185,6 +206,7 @@ for (m1,m2) in zip(model.modules(),newmodel.modules()):
         last_T = arg_max_rev.tolist()
 t2 = time.time()
 print("剪枝所花时间：",int(t2-t1))
+
 print("-----After Prune-----")
 # print_model_parameters(newmodel)
 print_model_param_nums(newmodel)
@@ -195,7 +217,7 @@ t2 = time.time()
 print("剪枝后测试所需时间：",(t2-t1)*1000)
 
 finetune_model = vgg(num_classes=10,depth=19,cfg=newmodel.config[0],fc=newmodel.config[1]).cuda()
-finetune_model.load_state_dict(newmodel.state_dict())
+finetune_model.load_state_dict(newmodel.state_dict()) # 加载newmodel的权重
 
 optimizer = optim.Adam(finetune_model.parameters(), lr=0.01, weight_decay=1e-4)
 scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer)
@@ -203,8 +225,10 @@ scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer)
 print("-----Fine Tune-----")
 t1 = time.time()
 best_prec1 = 0.
-for epoch in range(40):
+for epoch in range(20):
+    # 训练
     train(epoch,finetune_model,optimizer,scheduler=scheduler,train_loader=train_loader,cuda=cuda,log_interval=log_interval)
+    # 测试
     prec1 = test(finetune_model,test_loader=test_loader,cuda=cuda)
     is_best = prec1 > best_prec1
     best_prec1 = max(prec1, best_prec1)

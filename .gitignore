@@ -3,8 +3,9 @@
 *.tar
 3distillation/01Distilling_the_knowledge_in_a_neural_network/dataset
 
-
-
+# Pruning
+1pruning/02ThiNet/vgg_tb
+1pruning/02ThiNet/data.cifar10
 
 
 

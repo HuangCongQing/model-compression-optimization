@@ -176,6 +176,7 @@ def get_feature_hook(self, input, output):
     global total
     a = output.shape[0]
     b = output.shape[1]
+    # 输出feature的秩（输入图片计算每一层的 平均秩的信息）
     c = torch.tensor([torch.matrix_rank(output[i,j,:,:]).item() for i in range(a) for j in range(b)])
 
     c = c.view(a, -1).float()
@@ -257,15 +258,18 @@ if args.arch=='vgg_16_bn':
         total = torch.tensor(0.)
 
 elif args.arch=='resnet_56':
-
+    # res56计算每一层的秩的代码是这个4行
     cov_layer = eval('net.relu')
     handler = cov_layer.register_forward_hook(get_feature_hook)
     test()
     handler.remove()
 
+    # 保存为npy文件
     if not os.path.isdir('rank_conv/' + args.arch+'_limit%d'%(args.limit)):
         os.mkdir('rank_conv/' + args.arch+'_limit%d'%(args.limit))
     np.save('rank_conv/' + args.arch+'_limit%d'%(args.limit)+ '/rank_conv%d' % (1) + '.npy', feature_result.numpy())
+    
+    # 重置0
     feature_result = torch.tensor(0.)
     total = torch.tensor(0.)
 

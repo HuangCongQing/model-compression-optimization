@@ -4,7 +4,7 @@
  * @Company(School): UCAS
  * @Email: 1756260160@qq.com
  * @Date: 2022-10-16 10:28:52
- * @LastEditTime: 2022-12-20 18:21:09
+ * @LastEditTime: 2022-12-20 18:26:31
  * @FilePath: \model-compression-optimization\README.md
 -->
 # model-compression-optimization
@@ -20,6 +20,7 @@ model compression and optimization for deployment for Pytorch, including knowled
 | --- | --- | --- | --- |
 | **01开山之作：Learning Efficient Convolutional Networks Through Network Slimming (ICCV2017)** | code: [pruning/01NetworkSlimming](pruning/01NetworkSlimming) <br> code reference: <br>[link1]( https://github.com/foolwood/pytorch-slimming) <br>  [link2](https://github.com/Eric-mingjie/network-slimming)| [docs](https://www.yuque.com/huangzhongqing/pytorch/iar4s1) | placeholder |
 | **02【ICCV2017】ThiNet** | code: [1pruning/02ThiNet](1pruning/02ThiNet) <br> code reference: <br> https://github.com/SSriven/ThiNet | [docs](https://www.yuque.com/huangzhongqing/lightweight/pnzhr3tb8wfdciep#Kownj) | 1 |
+| **03【CVPR2020】HRank** | code: [1pruning/03HRank](1pruning/03HRank) <br> code reference: <br>[link](https://github.com/lmbxmu/HRank) | [docs](https://www.yuque.com/huangzhongqing/lightweight/xqks1lrte52moirq#dRSJK) | placeholder |
 | **Coming...** | 1 | 1 | 1 |
 
 

@@ -54,11 +54,11 @@ def accuracy(output, target, topk=(1,)):
 
         _, pred = output.topk(maxk, 1, True, True)
         pred = pred.t()
-        correct = pred.eq(target.view(1, -1).expand_as(pred))
+        correct = pred.eq(target.reshape(1, -1).expand_as(pred))
 
         res = []
         for k in topk:
-            correct_k = correct[:k].view(-1).float().sum(0, keepdim=True)
+            correct_k = correct[:k].reshape(-1).float().sum(0, keepdim=True)
             res.append(correct_k.mul_(100.0 / batch_size))
         return res
 
@@ -94,9 +94,9 @@ def print_params(config, prtf=print):
         prtf("{}={}".format(attr.upper(), value))
     prtf("")
 
-
-_, term_width = os.popen('stty size', 'r').read().split()
-term_width = int(term_width)
+# 这个问题可能跟python的版本有关，修改为80
+# _, term_width = os.popen('stty size', 'r').read().split()
+term_width = 80 # int(term_width)
 
 TOTAL_BAR_LENGTH = 65.
 last_time = time.time()

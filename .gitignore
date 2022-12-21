@@ -1,3 +1,7 @@
+1pruning/03HRank/result
+1pruning/03HRank/data
+1pruning/03HRank/rank_conv
+
 1pruning/01NetworkSlimming/data
 # 权重文件
 *.tar
@@ -7,7 +11,7 @@
 1pruning/02ThiNet/vgg_tb
 1pruning/02ThiNet/data.cifar10
 
-
+*.pt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

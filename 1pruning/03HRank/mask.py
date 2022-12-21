@@ -56,7 +56,7 @@ class mask_vgg_16_bn:
                 break
             item.data = item.data * self.mask[index]#prune certain weight
 
-
+# main
 class mask_resnet_56:
     def __init__(self, model=None, compress_rate=[0.50], job_dir='',device=None):
         self.model = model
@@ -68,7 +68,7 @@ class mask_resnet_56:
     def layer_mask(self, cov_id, resume=None, param_per_cov=3,  arch="resnet_56"):
         params = self.model.parameters()
         prefix = "rank_conv/"+arch+"/rank_conv"
-        subfix = ".npy"
+        subfix = ".npy" # file
 
         if resume:
             with open(resume, 'rb') as f:
@@ -86,8 +86,8 @@ class mask_resnet_56:
             if index == (cov_id - 1) * param_per_cov:
                 f, c, w, h = item.size()
                 rank = np.load(prefix + str(cov_id) + subfix)
-                pruned_num = int(self.compress_rate[cov_id - 1] * f)
-                ind = np.argsort(rank)[pruned_num:]  # preserved filter id
+                pruned_num = int(self.compress_rate[cov_id - 1] * f) # 数量
+                ind = np.argsort(rank)[pruned_num:]  # preserved filter id  剪枝排序
 
                 zeros = torch.zeros(f, 1, 1, 1).to(self.device)
                 for i in range(len(ind)):

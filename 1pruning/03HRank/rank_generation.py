@@ -137,12 +137,12 @@ else:
         'resnet_56':[0.1]+[0.60]*35+[0.0]*2+[0.6]*6+[0.4]*3+[0.1]+[0.4]+[0.1]+[0.4]+[0.1]+[0.4]+[0.1]+[0.4],
         'resnet_110':[0.1]+[0.40]*36+[0.40]*36+[0.4]*36
     }
-    compress_rate=default_cprate[args.arch]
+    compress_rate=default_cprate[args.arch] # 剪枝率
 
 # Model
 print('==> Building model..')
 print(compress_rate)
-net = eval(args.arch)(compress_rate=compress_rate)
+net = eval(args.arch)(compress_rate=compress_rate) # resnet_56
 net = net.to(device)
 
 if len(args.gpu)>1 and torch.cuda.is_available():
@@ -158,13 +158,13 @@ if args.resume:
     checkpoint = torch.load(args.resume, map_location='cuda:'+args.gpu)
     from collections import OrderedDict
     new_state_dict = OrderedDict()
-    if args.adjust_ckpt:
+    if args.adjust_ckpt: # false
         for k, v in checkpoint.items():
             new_state_dict[k.replace('module.', '')] = v
     else:
         for k, v in checkpoint['state_dict'].items():
             new_state_dict[k.replace('module.', '')] = v
-    net.load_state_dict(new_state_dict)
+    net.load_state_dict(new_state_dict) # 加载权重
 
 
 criterion = nn.CrossEntropyLoss()
@@ -173,16 +173,16 @@ total = torch.tensor(0.)
 def get_feature_hook(self, input, output):
     global feature_result
     global entropy
-    global total
-    a = output.shape[0]
-    b = output.shape[1]
-    # 输出feature的秩（输入图片计算每一层的 平均秩的信息）
-    c = torch.tensor([torch.matrix_rank(output[i,j,:,:]).item() for i in range(a) for j in range(b)])
+    global total #
+    a = output.shape[0] # output_channel 128
+    b = output.shape[1] # input_channel 16
+    # 输出feature的秩（输入图片计算每一层的 平均秩的信息）>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    c = torch.tensor([torch.matrix_rank(output[i,j,:,:]).item() for i in range(a) for j in range(b)]) #(2408, )
 
-    c = c.view(a, -1).float()
-    c = c.sum(0)
+    c = c.view(a, -1).float() # (output_channel, input_channel)(128, 16)
+    c = c.sum(0) # (16,)
     feature_result = feature_result * total + c
-    total = total + a
+    total = total + a # output_channel add
     feature_result = feature_result / total
 
 def get_feature_hook_densenet(self, input, output):
@@ -257,6 +257,7 @@ if args.arch=='vgg_16_bn':
         feature_result = torch.tensor(0.)
         total = torch.tensor(0.)
 
+# main===========================================
 elif args.arch=='resnet_56':
     # res56计算每一层的秩的代码是这个4行
     cov_layer = eval('net.relu')
@@ -273,16 +274,16 @@ elif args.arch=='resnet_56':
     feature_result = torch.tensor(0.)
     total = torch.tensor(0.)
 
-    # ResNet56 per block
+    # ResNet56 per block(3*9 *2= 27*2=54)
     cnt=1
     for i in range(3):
         block = eval('net.layer%d' % (i + 1))
         for j in range(9):
             cov_layer = block[j].relu1
             handler = cov_layer.register_forward_hook(get_feature_hook)
-            test()
+            test() # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
             handler.remove()
-            np.save('rank_conv/' + args.arch +'_limit%d'%(args.limit)+ '/rank_conv%d'%(cnt + 1)+'.npy', feature_result.numpy())
+            np.save('rank_conv/' + args.arch +'_limit%d'%(args.limit)+ '/rank_conv%d'%(cnt + 1)+'.npy', feature_result.numpy()) #shape: (out_channel,)
             cnt+=1
             feature_result = torch.tensor(0.)
             total = torch.tensor(0.)

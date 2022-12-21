@@ -269,6 +269,7 @@ for cov_id in range(args.start_cov, len(convcfg)):
     # Load pruned_checkpoint
     print_logger.info("cov-id: %d ====> Resuming from pruned_checkpoint..." % (cov_id))
 
+    # layer_mask(self, cov_id, resume=None, param_per_cov=3, arch="resnet_56"):
     m.layer_mask(cov_id + 1, resume=args.resume_mask, param_per_cov=param_per_cov_dic[args.arch], arch=args.arch)
 
     optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)

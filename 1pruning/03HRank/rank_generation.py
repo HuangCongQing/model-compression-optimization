@@ -174,15 +174,15 @@ def get_feature_hook(self, input, output):
     global feature_result
     global entropy
     global total #
-    a = output.shape[0] # output_channel 128
-    b = output.shape[1] # input_channel 16
+    a = output.shape[0] # B 128
+    b = output.shape[1] # C 16
     # 输出feature的秩（输入图片计算每一层的 平均秩的信息）>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     c = torch.tensor([torch.matrix_rank(output[i,j,:,:]).item() for i in range(a) for j in range(b)]) #(2408, )
 
-    c = c.view(a, -1).float() # (output_channel, input_channel)(128, 16)
-    c = c.sum(0) # (16,)
+    c = c.view(a, -1).float() # (B, C)(128, 16)
+    c = c.sum(0) # (C,)
     feature_result = feature_result * total + c
-    total = total + a # output_channel add
+    total = total + a # B add
     feature_result = feature_result / total
 
 def get_feature_hook_densenet(self, input, output):

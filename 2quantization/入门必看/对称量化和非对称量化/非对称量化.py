@@ -4,8 +4,8 @@ Author: HCQ
 Company(School): UCAS
 Email: 1756260160@qq.com
 Date: 2024-09-09 18:09:12
-LastEditTime: 2024-09-09 18:11:37
-FilePath: /model-compression-optimization/2quantization/01浮点数值量化举例.py
+LastEditTime: 2024-09-09 18:23:17
+FilePath: /model-compression-optimization/2quantization/入门必看/对称量化和非对称量化/非对称量化.py
 '''
 import numpy as np
 
@@ -45,3 +45,12 @@ if __name__ == "__main__":
     print(f"dequant_result = {data_dequant_float}")
     
     print(f"diff = {data_dequant_float - data_float32}")
+
+'''  
+input = [ 1.6243454 -0.6117564 -0.5281718]
+scale = 0.008769026924582089
+z = -58.0
+quant_result = [ 127. -128. -118.]
+dequant_result = [ 1.62227    -0.6138319  -0.52614164]
+diff = [-0.00207543 -0.00207549  0.00203013]
+'''

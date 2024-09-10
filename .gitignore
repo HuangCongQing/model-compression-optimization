@@ -6,6 +6,9 @@
 # 权重文件
 *.tar
 3distillation/01Distilling_the_knowledge_in_a_neural_network/dataset
+*.onnx
+*.pt
+*.pth
 
 # Pruning
 1pruning/02ThiNet/vgg_tb
